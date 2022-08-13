@@ -8,4 +8,4 @@ def index():
 
 @app.route("/admin")
 def admin():    
-    return " Hello from Admin Server! "    
+    return " Hello from Admin Server! "     
