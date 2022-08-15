@@ -1,7 +1,9 @@
 import cv2
-from flask import Flask, render_template
+import os
+from werkzeug.utils import secure_filename
+from flask import Flask, request, render_template
 
-UPLOAD_FOLDER = 'C:/Users/ashar/OneDrive/Desktop/Sketch-Flask-App/static/uploads'
+UPLOAD_FOLDER = 'C:\\Users\\sahar\\OneDrive\\Desktop\\Galaxy Staffing\\Flask-APP\\realpython-example-app\\static\\uploads'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg'])
 
 app = Flask(__name__)
@@ -25,3 +27,16 @@ def make_sketch(img):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.route('/sketch', methods=['POST'])
+def sketch():
+    file = request.files['file']
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        img = cv2.imread(UPLOAD_FOLDER+'/'+filename)
+        sketch_img = make_sketch(img)
+        sketch_img_name = filename.split('.')[0]+"_sketch.jpg"
+        _ = cv2.imwrite(UPLOAD_FOLDER+'/'+sketch_img_name, sketch_img)
+        return render_template('index.html', org_img_name=filename, sketch_img_name=sketch_img_name)
